@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: meeting_scheduler_db
+    environment:
+      POSTGRES_DB: meeting_scheduler
+      POSTGRES_USER: scheduler_user
+      POSTGRES_PASSWORD: scheduler_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - meeting_scheduler_network
+
+  app:
+    build: .
+    container_name: meeting_scheduler_backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_USERNAME: scheduler_user
+      DB_PASSWORD: scheduler_password
+      DB_URL: jdbc:postgresql://postgres:5432/meeting_scheduler
+      JWT_SECRET: your-secret-key-here
+    depends_on:
+      - postgres
+    networks:
+      - meeting_scheduler_network
+
+volumes:
+  postgres_data:
+
+networks:
+  meeting_scheduler_network:
+    driver: bridge
+
+
+

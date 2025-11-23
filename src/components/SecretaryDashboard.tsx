@@ -21,11 +21,20 @@ interface Meeting {
   status: string;
 }
 
+interface Schedule {
+  id: string;
+  meeting_id: string;
+  scheduled_start: string;
+  scheduled_end: string;
+  optimization_score: number;
+}
+
 export default function SecretaryDashboard() {
   const { user } = useAuth();
   const [executives, setExecutives] = useState<User[]>([]);
   const [selectedExecutive, setSelectedExecutive] = useState<string>('');
   const [executiveMeetings, setExecutiveMeetings] = useState<Meeting[]>([]);
+  const [executiveSchedules, setExecutiveSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(false);
   const [showScheduleManager, setShowScheduleManager] = useState(false);
 
@@ -56,8 +65,12 @@ export default function SecretaryDashboard() {
     
     try {
       setLoading(true);
-      const meetings = await api.getMeetings(selectedExecutive);
+      const [meetings, schedules] = await Promise.all([
+        api.getMeetings(selectedExecutive),
+        api.getSchedules(selectedExecutive)
+      ]);
       setExecutiveMeetings(meetings);
+      setExecutiveSchedules(schedules || []);
     } catch (error) {
       console.error('Error loading executive meetings:', error);
     } finally {
@@ -101,7 +114,17 @@ export default function SecretaryDashboard() {
   }
 
   const pendingMeetings = executiveMeetings.filter(m => m.status === 'pending');
-  const scheduledMeetings = executiveMeetings.filter(m => m.status === 'scheduled');
+  // Sort scheduled meetings by optimization score (highest first)
+  const scheduledMeetings = executiveMeetings
+    .filter(m => m.status === 'scheduled')
+    .sort((a, b) => {
+      const scheduleA = executiveSchedules.find(s => s.meeting_id === a.id);
+      const scheduleB = executiveSchedules.find(s => s.meeting_id === b.id);
+      const scoreA = scheduleA?.optimization_score || 0;
+      const scoreB = scheduleB?.optimization_score || 0;
+      // Sort descending (highest score first)
+      return scoreB - scoreA;
+    });
 
   // Show custom schedule manager if enabled
   if (showScheduleManager && selectedExecutive) {
@@ -226,6 +249,11 @@ export default function SecretaryDashboard() {
                       <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
                         <span>Priority: {meeting.priority}/10</span>
                         <span>{meeting.duration_minutes}m</span>
+                        {executiveSchedules.find(s => s.meeting_id === meeting.id) && (
+                          <span className="font-semibold text-green-700">
+                            Score: {executiveSchedules.find(s => s.meeting_id === meeting.id)?.optimization_score.toFixed(2)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   ))}

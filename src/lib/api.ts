@@ -219,6 +219,50 @@ export const api = {
       throw new Error(error || 'Failed to update meeting schedule');
     }
     return response.json();
+  },
+
+  // ========== ADMIN ==========
+  async getAllUsersForAdmin() {
+    const response = await fetch(`${API_BASE_URL}/admin/users`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!response.ok) throw new Error('Failed to fetch all users');
+    return response.json();
+  },
+
+  async updateUserRole(userId: string, role: string) {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/role`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role })
+    });
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error || 'Failed to update user role');
+    }
+    return response.json();
+  },
+
+  async deleteUser(userId: string) {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error || 'Failed to delete user');
+    }
+    return response.json();
+  },
+
+  async getSystemStatistics() {
+    const response = await fetch(`${API_BASE_URL}/admin/statistics`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!response.ok) throw new Error('Failed to fetch system statistics');
+    return response.json();
   }
 };
 

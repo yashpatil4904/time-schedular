@@ -21,11 +21,11 @@ interface Meeting {
 
 interface Schedule {
   id: string;
-  meeting_id: string;
-  scheduled_start: string;
-  scheduled_end: string;
-  optimization_score: number;
-  meeting?: Meeting;
+  meetingId?: string; // May come from nested meeting object
+  scheduledStart: string; // Backend uses camelCase
+  scheduledEnd: string; // Backend uses camelCase
+  optimizationScore: number; // Backend uses camelCase
+  meeting?: Meeting; // Nested meeting object from backend
 }
 
 interface Notification {
@@ -62,6 +62,14 @@ export default function Dashboard() {
 
       setMeetings(meetingsData || []);
       setSchedules(schedulesData || []);
+      
+      // Debug: Log schedules to see actual structure
+      console.log('📊 Loaded schedules:', schedulesData);
+      if (schedulesData && schedulesData.length > 0) {
+        console.log('📋 First schedule structure:', schedulesData[0]);
+        console.log('📋 Schedule fields:', Object.keys(schedulesData[0]));
+      }
+      
       // Filter out read notifications
       const unreadNotifications = (notificationsData || []).filter(notif => !notif.isRead);
       setNotifications(unreadNotifications);
@@ -151,7 +159,49 @@ export default function Dashboard() {
   }
 
   const pendingMeetings = meetings.filter(m => m.status === 'pending');
-  const scheduledMeetings = meetings.filter(m => m.status === 'scheduled');
+  
+  // Sort scheduled meetings by optimization score (highest first)
+  // First, get all scheduled meetings
+  const allScheduledMeetings = meetings.filter(m => m.status === 'scheduled');
+  
+  // Then sort them by their schedule's optimization score
+  const scheduledMeetings = allScheduledMeetings.sort((a, b) => {
+    // Find matching schedules - check multiple possible field structures
+    const scheduleA = schedules.find(s => {
+      const sMeetingId = s.meeting?.id || 
+                        (s as any).meetingId || 
+                        (s.meeting as any)?.id ||
+                        (s as any).meeting?.id;
+      return sMeetingId === a.id;
+    });
+    
+    const scheduleB = schedules.find(s => {
+      const sMeetingId = s.meeting?.id || 
+                        (s as any).meetingId || 
+                        (s.meeting as any)?.id ||
+                        (s as any).meeting?.id;
+      return sMeetingId === b.id;
+    });
+    
+    // Get scores - handle both camelCase and snake_case
+    const scoreA = scheduleA?.optimizationScore ?? 
+                   (scheduleA as any)?.optimization_score ?? 
+                   (scheduleA as any)?.score ?? 
+                   0;
+    const scoreB = scheduleB?.optimizationScore ?? 
+                   (scheduleB as any)?.optimization_score ?? 
+                   (scheduleB as any)?.score ?? 
+                   0;
+    
+    // Debug logging
+    if (scoreA !== 0 || scoreB !== 0) {
+      console.log(`🔢 Sorting: "${a.title}" (score: ${scoreA}) vs "${b.title}" (score: ${scoreB})`);
+    }
+    
+    // Sort descending (highest score first)
+    return scoreB - scoreA;
+  });
+  
   const completedMeetings = meetings.filter(m => m.status === 'completed');
 
   return (
@@ -322,25 +372,46 @@ export default function Dashboard() {
               <p className="text-slate-600 text-center py-8">No scheduled meetings</p>
             ) : (
               <div className="space-y-3">
-                {scheduledMeetings.map(meeting => {
-                  const schedule = schedules.find(s => s.meeting_id === meeting.id);
+                {scheduledMeetings.map((meeting, index) => {
+                  // Find schedule by matching meeting ID - check multiple possible field structures
+                  const schedule = schedules.find(s => {
+                    const sMeetingId = s.meeting?.id || 
+                                      (s as any).meetingId || 
+                                      (s.meeting as any)?.id ||
+                                      (s as any).meeting?.id;
+                    return sMeetingId === meeting.id;
+                  });
+                  
+                  // Handle both camelCase and snake_case field names
+                  const scheduledStart = schedule?.scheduledStart ?? (schedule as any)?.scheduled_start;
+                  const scheduledEnd = schedule?.scheduledEnd ?? (schedule as any)?.scheduled_end;
+                  const score = schedule?.optimizationScore ?? 
+                               (schedule as any)?.optimization_score ?? 
+                               (schedule as any)?.score ?? 
+                               0;
+                  
                   return (
                     <div key={meeting.id} className="border border-green-200 rounded-lg p-4 bg-green-50">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-slate-900">{meeting.title}</h3>
-                          {schedule && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-green-700 bg-green-200 px-2 py-0.5 rounded">
+                              #{index + 1}
+                            </span>
+                            <h3 className="font-semibold text-slate-900">{meeting.title}</h3>
+                          </div>
+                          {schedule && scheduledStart && (
                             <div className="flex items-center gap-2 mt-2 text-sm text-slate-700">
                               <Clock className="w-4 h-4" />
                               <span>
-                                {new Date(schedule.scheduled_start).toLocaleString()} - {new Date(schedule.scheduled_end).toLocaleTimeString()}
+                                {new Date(scheduledStart).toLocaleString()} - {new Date(scheduledEnd || scheduledStart).toLocaleTimeString()}
                               </span>
                             </div>
                           )}
                           <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
                             <span>Priority: {meeting.priority}/10</span>
                             <span>Duration: {meeting.duration_minutes}m</span>
-                            {schedule && <span>Score: {schedule.optimization_score.toFixed(2)}</span>}
+                            {schedule && <span className="font-semibold text-green-700">Score: {score.toFixed(2)}</span>}
                           </div>
                         </div>
                         <button

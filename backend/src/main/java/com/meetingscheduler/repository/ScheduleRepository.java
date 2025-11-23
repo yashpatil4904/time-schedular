@@ -15,6 +15,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, UUID> {
     
     List<Schedule> findByUserIdOrderByScheduledStartAsc(UUID userId);
     
+    List<Schedule> findByUserIdOrderByOptimizationScoreDesc(UUID userId);
+    
     List<Schedule> findByMeetingId(UUID meetingId);
     
     Optional<Schedule> findByMeetingIdAndUserId(UUID meetingId, UUID userId);

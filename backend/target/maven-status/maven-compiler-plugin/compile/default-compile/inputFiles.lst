@@ -6,6 +6,7 @@ C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\c
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\repository\AuthServiceRepository.java
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\repository\ManageMeetingRequestRepository.java
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\entity\Meeting.java
+C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\controller\AdminController.java
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\entity\Assists.java
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\service\MeetingService.java
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\entity\Participation.java
@@ -18,6 +19,7 @@ C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\c
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\service\NotificationService.java
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\dto\AuthResponse.java
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\controller\NotificationController.java
+C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\service\AdminService.java
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\algorithm\WeightedPriorityAlgorithm.java
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\entity\ManageMeetingRequest.java
 C:\Users\ASUS\OneDrive\Desktop\SE time schedular\project\backend\src\main\java\com\meetingscheduler\dto\OptimizeScheduleRequest.java

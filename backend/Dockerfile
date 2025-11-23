@@ -18,3 +18,6 @@ CMD ["java", "-jar", "target/meeting-scheduler-backend-1.0.0.jar"]
 
 
 
+
+
+
